@@ -11,7 +11,7 @@ members = [
 
 [package]
 name = "function-runner"
-version = "3.4.0"
+version = "3.5.0"
 edition = "2021"
 
 [profile.benchmark]
@@ -34,6 +34,8 @@ colored = "2.0"
 serde = "1.0"
 rust-embed = "6.6.1"
 is-terminal = "0.4.7"
+dylibso-observe-sdk = { path = "/Users/ben/dylibso/observe-sdk/rust" }
+tokio = "1.28.2"
 
 [dev-dependencies]
 assert_cmd = "2.0"
