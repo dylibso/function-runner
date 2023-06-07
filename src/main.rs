@@ -27,7 +27,8 @@ struct Opts {
     json: bool,
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
     let mut input: Box<dyn Read + Sync + Send + 'static> = if let Some(ref input) = opts.input {
@@ -48,7 +49,7 @@ fn main() -> Result<()> {
     let _ = serde_json::from_slice::<serde_json::Value>(&buffer)
         .map_err(|e| anyhow!("Invalid input JSON: {}", e))?;
 
-    let function_run_result = run(opts.function, buffer)?;
+    let function_run_result = run(opts.function, buffer).await?;
 
     if opts.json {
         println!("{}", function_run_result.to_json());

@@ -12,6 +12,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "adler"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
+
+[[package]]
 name = "ahash"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -375,6 +381,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cpp_demangle"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c76f98bdfc7f66172e6c7065f981ebb576ffc903fe4c0561d9f0c2509226dc6"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -477,7 +492,7 @@ dependencies = [
  "itertools",
  "log",
  "smallvec",
- "wasmparser",
+ "wasmparser 0.102.0",
  "wasmtime-types",
 ]
 
@@ -700,6 +715,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
+name = "dylibso-observe-sdk"
+version = "0.1.0"
+source = "git+https://github.com/dylibso/observe-sdk.git?branch=zipkin-handrolled-p2#3d00755ceee5dfc93036308302816a4649f42677"
+dependencies = [
+ "anyhow",
+ "log",
+ "modsurfer-demangle",
+ "rand",
+ "serde",
+ "serde_json",
+ "serde_tuple",
+ "tokio",
+ "ureq",
+ "url",
+ "wasmparser 0.107.0",
+ "wasmtime",
+ "wasmtime-wasi",
+]
+
+[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -786,6 +821,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "flate2"
+version = "1.0.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b9429470923de8e8cbd4d2dc513535400b4b3fef0319fb5c4e1f520a7bef743"
+dependencies = [
+ "crc32fast",
+ "miniz_oxide",
+]
+
+[[package]]
 name = "float-cmp"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -822,18 +867,22 @@ dependencies = [
 
 [[package]]
 name = "function-runner"
-version = "3.4.0"
+version = "3.5.0-observe"
 dependencies = [
  "anyhow",
  "assert_cmd",
  "clap",
  "colored",
  "deterministic-wasi-ctx",
+ "dylibso-observe-sdk",
  "is-terminal",
  "predicates",
  "rust-embed",
  "serde",
  "serde_json",
+ "tokio",
+ "ureq",
+ "ureq_multipart",
  "wasi-common",
  "wasmtime",
  "wasmtime-wasi",
@@ -1199,6 +1248,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "mime"
+version = "0.3.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
+
+[[package]]
+name = "mime_guess"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
+dependencies = [
+ "mime",
+ "unicase",
+]
+
+[[package]]
+name = "miniz_oxide"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7810e0be55b428ada41041c41f32c9f1a42817901b4ccf45fa3d4b6561e74c7"
+dependencies = [
+ "adler",
+]
+
+[[package]]
+name = "modsurfer-demangle"
+version = "0.1.0"
+source = "git+https://github.com/dylibso/modsurfer#d6807f347dd64a83ddc5a3173f160a5553328a45"
+dependencies = [
+ "cpp_demangle 0.4.1",
+ "rustc-demangle",
+]
+
+[[package]]
 name = "normalize-line-endings"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1467,6 +1550,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "456c603be3e8d448b072f410900c09faf164fbce2d480456f50eea6e25f9c848"
 
 [[package]]
+name = "ring"
+version = "0.16.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3053cf52e236a3ed746dfc745aa9cacf1b791d846bdaf412f60a8d7d6e17c8fc"
+dependencies = [
+ "cc",
+ "libc",
+ "once_cell",
+ "spin",
+ "untrusted",
+ "web-sys",
+ "winapi",
+]
+
+[[package]]
 name = "runtime_function"
 version = "1.0.0"
 dependencies = [
@@ -1546,6 +1644,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustls"
+version = "0.21.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e32ca28af694bc1bbf399c33a516dbdf1c90090b8ab23c2bc24f834aa2247f5f"
+dependencies = [
+ "log",
+ "ring",
+ "rustls-webpki",
+ "sct",
+]
+
+[[package]]
+name = "rustls-webpki"
+version = "0.100.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6207cd5ed3d8dca7816f8f3725513a34609c0c765bf652b8c3cb4cfd87db46b"
+dependencies = [
+ "ring",
+ "untrusted",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1571,6 +1691,22 @@ name = "scratch"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1792db035ce95be60c3f8853017b3999209281c24e2ba5bc8e59bf97a0c590c1"
+
+[[package]]
+name = "sct"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d53dcdb7c9f8158937a7981b48accfd39a43af418591a5d008c7b22b5e1b7ca4"
+dependencies = [
+ "ring",
+ "untrusted",
+]
+
+[[package]]
+name = "semver"
+version = "1.0.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
 name = "serde"
@@ -1601,6 +1737,27 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_tuple"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4f025b91216f15a2a32aa39669329a475733590a015835d1783549a56d09427"
+dependencies = [
+ "serde",
+ "serde_tuple_macros",
+]
+
+[[package]]
+name = "serde_tuple_macros"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4076151d1a2b688e25aaf236997933c66e18b870d0369f8b248b8ab2be630d7e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.107",
 ]
 
 [[package]]
@@ -1671,6 +1828,12 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+
+[[package]]
+name = "spin"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stable_deref_trait"
@@ -1815,6 +1978,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
+name = "tokio"
+version = "1.28.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94d7b1cfd2aa4011f2de74c2c4c63665e27a71006b0a192dcd2710272e73dfa2"
+dependencies = [
+ "autocfg",
+ "num_cpus",
+ "pin-project-lite",
+ "tokio-macros",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "630bdcf245f78637c13ec01ffae6187cca34625e8c63150d424b59e55af2675e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.16",
+]
+
+[[package]]
 name = "toml"
 version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1903,6 +2090,40 @@ name = "unicode-xid"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
+
+[[package]]
+name = "untrusted"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
+
+[[package]]
+name = "ureq"
+version = "2.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b11c96ac7ee530603dcdf68ed1557050f374ce55a5a07193ebf8cbc9f8927e9"
+dependencies = [
+ "base64",
+ "flate2",
+ "log",
+ "once_cell",
+ "rustls",
+ "rustls-webpki",
+ "url",
+ "webpki-roots",
+]
+
+[[package]]
+name = "ureq_multipart"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22baf2d124865fc4d505f5942222a57f6a3eae8a133819d7fd6194423e3f6e91"
+dependencies = [
+ "mime",
+ "mime_guess",
+ "rand",
+ "ureq",
+]
 
 [[package]]
 name = "url"
@@ -2071,6 +2292,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmparser"
+version = "0.107.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29e3ac9b780c7dda0cac7a52a5d6d2d6707cc6e3451c9db209b6c758f40d7acb"
+dependencies = [
+ "indexmap",
+ "semver",
+]
+
+[[package]]
 name = "wasmtime"
 version = "8.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2090,7 +2321,7 @@ dependencies = [
  "rayon",
  "serde",
  "target-lexicon",
- "wasmparser",
+ "wasmparser 0.102.0",
  "wasmtime-cache",
  "wasmtime-component-macro",
  "wasmtime-cranelift",
@@ -2169,7 +2400,7 @@ dependencies = [
  "object",
  "target-lexicon",
  "thiserror",
- "wasmparser",
+ "wasmparser 0.102.0",
  "wasmtime-cranelift-shared",
  "wasmtime-environ",
 ]
@@ -2204,7 +2435,7 @@ dependencies = [
  "serde",
  "target-lexicon",
  "thiserror",
- "wasmparser",
+ "wasmparser 0.102.0",
  "wasmtime-types",
 ]
 
@@ -2231,7 +2462,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "cfg-if",
- "cpp_demangle",
+ "cpp_demangle 0.3.5",
  "gimli",
  "ittapi",
  "log",
@@ -2302,7 +2533,7 @@ dependencies = [
  "cranelift-entity",
  "serde",
  "thiserror",
- "wasmparser",
+ "wasmparser 0.102.0",
 ]
 
 [[package]]
@@ -2358,6 +2589,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab9ab0d87337c3be2bb6fc5cd331c4ba9fd6bcb4ee85048a0dd59ed9ecf92e53"
 dependencies = [
  "wast 57.0.0",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.62"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16b5f940c7edfdc6d12126d98c9ef4d1b3d470011c47c76a6581df47ad9ba721"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b03058f88386e5ff5310d9111d53f48b17d732b401aeb83a8d5190f2ac459338"
+dependencies = [
+ "rustls-webpki",
 ]
 
 [[package]]
