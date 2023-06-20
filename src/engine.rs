@@ -5,6 +5,8 @@ use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
 use dylibso_observe_sdk::adapter::{zipkin::{ZipkinAdapter}, new_trace_id};
 use tokio::task;
+use ureq;
+use ureq_multipart::MultipartBuilder;
 
 use crate::{
     function_run_result::{
@@ -48,11 +50,22 @@ fn import_modules(
 }
 
 pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
-    let engine = Engine::new(Config::new().wasm_multi_memory(true).consume_fuel(true))?;
-    let module = Module::from_file(&engine, &function_path)
-        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
+    let (content_type, data) = MultipartBuilder::new().add_file("wasm", &function_path)?
+        .finish()?;
 
-    let data = std::fs::read(&function_path)?;
+    println!("Instrumenting the module first...");
+    let resp = ureq::post("https://compiler-preview.dylibso.com/instrument")
+      .set("Authorization", "Bearer 48268d3d35a90f8ddfd47ea520a7dba9")
+      .set("Content-Type", &content_type)
+      .send_bytes(&data)?;
+
+    let mut data = Vec::new();
+    resp.into_reader().read_to_end(&mut data).unwrap();
+    println!("Done!");
+
+    let engine = Engine::new(Config::new().wasm_multi_memory(true).consume_fuel(true))?;
+    let module = Module::new(&engine, &data)
+        .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();

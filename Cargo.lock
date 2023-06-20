@@ -717,6 +717,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 [[package]]
 name = "dylibso-observe-sdk"
 version = "0.1.0"
+source = "git+https://github.com/dylibso/observe-sdk.git?branch=zipkin-handrolled-p2#3d00755ceee5dfc93036308302816a4649f42677"
 dependencies = [
  "anyhow",
  "log",
@@ -880,6 +881,8 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "ureq",
+ "ureq_multipart",
  "wasi-common",
  "wasmtime",
  "wasmtime-wasi",
@@ -1242,6 +1245,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d61c719bcfbcf5d62b3a09efa6088de8c54bc0bfcd3ea7ae39fcc186108b8de1"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "mime"
+version = "0.3.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
+
+[[package]]
+name = "mime_guess"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
+dependencies = [
+ "mime",
+ "unicase",
 ]
 
 [[package]]
@@ -2092,6 +2111,18 @@ dependencies = [
  "rustls-webpki",
  "url",
  "webpki-roots",
+]
+
+[[package]]
+name = "ureq_multipart"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22baf2d124865fc4d505f5942222a57f6a3eae8a133819d7fd6194423e3f6e91"
+dependencies = [
+ "mime",
+ "mime_guess",
+ "rand",
+ "ureq",
 ]
 
 [[package]]

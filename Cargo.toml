@@ -36,6 +36,8 @@ rust-embed = "6.6.1"
 is-terminal = "0.4.7"
 dylibso-observe-sdk = { git = "https://github.com/dylibso/observe-sdk.git", branch = "zipkin-handrolled-p2" }
 tokio = "1.28.2"
+ureq = "2"
+ureq_multipart = "1.1.1"
 
 [dev-dependencies]
 assert_cmd = "2.0"
