@@ -56,9 +56,11 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
     println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
     println!("Instrumenting the module first...");
     let resp = ureq::post("https://compiler-preview.dylibso.com/instrument")
-      .set("Authorization", "Bearer 48268d3d35a90f8ddfd47ea520a7dba9")
-      .set("Content-Type", &content_type)
-      .send_bytes(&data)?;
+        // this key is a public, limited trial API key for this demo. please reach out to us for
+        // your own key
+        .set("Authorization", "Bearer 48268d3d35a90f8ddfd47ea520a7dba9")
+        .set("Content-Type", &content_type)
+        .send_bytes(&data)?;
 
     let mut data = Vec::new();
     resp.into_reader().read_to_end(&mut data).unwrap();
