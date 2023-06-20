@@ -1,12 +1,9 @@
 use anyhow::{anyhow, Result};
 use rust_embed::RustEmbed;
-use std::{collections::HashSet, io::Cursor, path::PathBuf};
+use std::{collections::HashSet, io::Cursor, path::PathBuf, time::Duration};
 use wasi_common::{I32Exit, WasiCtx};
 use wasmtime::{Config, Engine, Linker, Module, Store};
-use dylibso_observe_sdk::{
-    adapter::{zipkin::ZipkinAdapter, Collector},
-    add_to_linker,
-};
+use dylibso_observe_sdk::adapter::{zipkin::{ZipkinAdapter}, new_trace_id};
 use tokio::task;
 
 use crate::{
@@ -55,6 +52,8 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
     let module = Module::from_file(&engine, &function_path)
         .map_err(|e| anyhow!("Couldn't load the Function {:?}: {}", &function_path, e))?;
 
+    let data = std::fs::read(&function_path)?;
+
     let input_stream = wasi_common::pipe::ReadPipe::new(Cursor::new(input));
     let output_stream = wasi_common::pipe::WritePipe::new_in_memory();
     let error_stream = wasi_common::pipe::WritePipe::new(LogStream::default());
@@ -76,11 +75,8 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         import_modules(&module, engine, &mut linker, &mut store);
 
         // create our adapter
-        let adapter = ZipkinAdapter::new()?;
-        let id = adapter.lock().await.new_collector();
-        let events = add_to_linker(id, &mut linker)?;
-        let collector = Collector::new(adapter, id, events).await?;
-
+        let adapter = ZipkinAdapter::new();
+        let mut trace_ctx = adapter.start(&mut linker, &data).await?;
 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
@@ -88,14 +84,10 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         let function_name = "_start";
         let function = instance
             .get_typed_func::<(), ()>(&mut store, function_name)?;
+    
 
-        let module_result = ZipkinAdapter::start_trace(
-                String::from("global"),
-                function_name.to_string(),
-                || {
-                    function.call(&mut store, ())
-                },
-            );
+        trace_ctx.set_trace_id(new_trace_id()).await;
+        let module_result = function.call(&mut store, ());
 
         // let module_result = instance
         //     .get_typed_func::<(), ()>(&mut store, "_start")?
@@ -113,8 +105,7 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
 
         // collect the events and shut it down
         task::yield_now().await;
-        collector.shutdown().await;
-
+        trace_ctx.shutdown().await;
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can measure memory usage.
