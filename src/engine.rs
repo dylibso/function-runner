@@ -86,8 +86,10 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
             .get_typed_func::<(), ()>(&mut store, function_name)?;
     
 
-        trace_ctx.set_trace_id(new_trace_id()).await;
+        let trace_id = new_trace_id();
+        trace_ctx.set_trace_id(trace_id.clone()).await;
         let module_result = function.call(&mut store, ());
+
 
         // let module_result = instance
         //     .get_typed_func::<(), ()>(&mut store, "_start")?
@@ -106,6 +108,8 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         // collect the events and shut it down
         task::yield_now().await;
         trace_ctx.shutdown().await;
+
+        println!("http://localhost:9411/zipkin/traces/{}", trace_id.to_hex_8());
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can measure memory usage.
