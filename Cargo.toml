@@ -34,7 +34,7 @@ colored = "2.0"
 serde = "1.0"
 rust-embed = "6.6.1"
 is-terminal = "0.4.7"
-dylibso-observe-sdk = { path = "/Users/ben/dylibso/observe-sdk/rust" }
+dylibso-observe-sdk = { git = "https://github.com/dylibso/observe-sdk.git", branch = "zipkin-handrolled-p2" }
 tokio = "1.28.2"
 
 [dev-dependencies]
