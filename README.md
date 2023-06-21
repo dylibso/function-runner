@@ -29,7 +29,7 @@ The easiest way to run zipkin locally is with Docker:
 
 
 ```bash
-docker run -p 9411:9411 openzipkin/zipkin --logging.level.zipkin2=DEBUG
+docker run -d -p 9411:9411 openzipkin/zipkin --logging.level.zipkin2=DEBUG
 ```
 
 ### Run your function
