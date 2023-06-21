@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
+use dylibso_observe_sdk::adapter::{new_trace_id, zipkin::ZipkinAdapter};
 use rust_embed::RustEmbed;
-use std::{collections::HashSet, io::Cursor, path::PathBuf, time::Duration};
-use wasi_common::{I32Exit, WasiCtx};
-use wasmtime::{Config, Engine, Linker, Module, Store};
-use dylibso_observe_sdk::adapter::{zipkin::{ZipkinAdapter}, new_trace_id};
+use std::{collections::HashSet, io::Cursor, path::PathBuf};
 use tokio::task;
 use ureq;
 use ureq_multipart::MultipartBuilder;
+use wasi_common::{I32Exit, WasiCtx};
+use wasmtime::{Config, Engine, Linker, Module, Store};
 
 use crate::{
     function_run_result::{
@@ -50,7 +50,8 @@ fn import_modules(
 }
 
 pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunResult> {
-    let (content_type, data) = MultipartBuilder::new().add_file("wasm", &function_path)?
+    let (content_type, data) = MultipartBuilder::new()
+        .add_file("wasm", &function_path)?
         .finish()?;
 
     println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
@@ -98,14 +99,11 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         let instance = linker.instantiate(&mut store, &module)?;
 
         let function_name = "_start";
-        let function = instance
-            .get_typed_func::<(), ()>(&mut store, function_name)?;
-    
+        let function = instance.get_typed_func::<(), ()>(&mut store, function_name)?;
 
         let trace_id = new_trace_id();
         trace_ctx.set_trace_id(trace_id.clone()).await;
         let module_result = function.call(&mut store, ());
-
 
         // let module_result = instance
         //     .get_typed_func::<(), ()>(&mut store, "_start")?
@@ -125,7 +123,10 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         task::yield_now().await;
         trace_ctx.shutdown().await;
 
-        println!("http://localhost:9411/zipkin/traces/{}", trace_id.to_hex_8());
+        println!(
+            "http://localhost:9411/zipkin/traces/{}",
+            trace_id.to_hex_8()
+        );
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
         // We need this mutable borrow to fall out of scope so that we can measure memory usage.
