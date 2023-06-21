@@ -1,0 +1,12 @@
+{
+    "cart": {
+        "lines": [
+            {
+                "id": "gid://shopify/CartLine/0",
+                "merchandise": { "id": "gid://shopify/ProductVariant/0" }
+            }
+        ]
+    },
+    "discountNode": { "metafield": { "value": "{\"value\":10.0}" } },
+    "presentmentCurrencyRate": "2.00"
+}
