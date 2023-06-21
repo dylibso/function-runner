@@ -1,39 +1,60 @@
 # function-runner
 
-[About this repo](#about-this-repo) | [Usage](#usage) | [Development](#development)
+This fork of the [Shopify Function Runner](https://github.com/Shopify/function-runner) is a demo of usage of the [Dylibso Observe SDK](https://github.com/dylibso/observe-sdk).
 
-## About this repo
+This README will show you how to instrument a Shopify Function and view the data in [Zipkin](https://zipkin.io/).
 
-**Introduction:**
+## Instructions
 
-This is a simple CLI (`function-runner`) which allows you to run Wasm
-Functions intended for the Shopify Functions infrastructure. Functions will run using
-the provided JSON input file and their output will be printed as JSON
-upon completion.
+### Install this forked version of the runner
 
-By default, the Function is expected to be named `function.wasm` in the
-current directory. This may be overriden using the `-f` option.
+> *Note*: This will install over an existing version of `function-runner` if you have one.
 
-Example: `function-runner -f '../my-function-name.wasm' '../my-input.json'`
+```bash
+git clone https://github.com/dylibso/function-runner.git
+cd function-runner
+cargo install --path . --locked
+```
 
-## Usage
+If you don't get any error messages, check that it installed correctly. You should see a version with `-observe` in it:
 
-If you wish to use `function-runner` without compiling it, the [Releases](https://github.com/Shopify/function-runner/releases) page
-contains binaries that can be run on your computer.
+```bash
+function-runner --version
+# => function-runner 3.5.0-observe
+```
 
-To see the list of possible commands and arguments, run `function-runner --help`.
+### Run Zipkin
 
-## Development
+The easiest way to run zipkin locally is with Docker:
 
-Building requires a rust toolchain of `1.66.0` to `1.67.0`. `cargo install --path . --locked` will build
-and add the `function-runner` command to your path.
 
-### Commands
+```bash
+docker run -p 9411:9411 openzipkin/zipkin --logging.level.zipkin2=DEBUG
+```
 
-- `cargo install --path . --locked` : Build and install the `function-runner` command.
-- `function-runner` : Execute a Function.
+### Run your function
 
-## Releasing
+Run your function like you normally would with the shopify function runner. It will first send your Wasm to our instrumenter service to be instrumented (see more info in next section), then it will run it and emit a URL which you can click to view the trace:
 
-1. Create and merge a PR incrementing the version in [Cargo.toml](https://github.com/Shopify/function-runner/blob/main/Cargo.toml#L11) in accordance with [SemVer](https://semver.org/) based on changes from the previous release
-1. Create a new release in [Github](https://github.com/Shopify/function-runner/releases/new) with a name like `v3.2.3` where the version matches the Cargo.toml version
+> *Note*: The instrumenter works on all Wasm files, but we only offer support to shopify functions written in Rust for the scope of this demo
+
+```
+function-runner -f my-shopify-function.wasm -j myinput.json
+# => http://localhost:9411/zipkin/traces/41c49675061b0c99
+```
+
+### Aside: Instrumenting Wasm Module
+
+*Note*: This demo auto-instruments the code for you with a trial API key, but this section describes how the service works
+
+You can now instrument your Shopify function with our instrumenter. The only way to instrument your Wasm right now is through the instrumentation service. The easiest way to do this is to send up your Wasm with curl and get an instrumented Wasm module back:
+
+```
+curl -F wasm=@code.wasm https://compiler-preview.dylibso.com/instrument -X POST -H 'Authorization: Bearer <your-api-key>' > code.instr.wasm
+```
+
+:key: **You can get an API key by contacting [support@dylibso.com](mailto:support@dylibso.com).**
+
+> **Note**: The Instrumentation Service (https://compiler-preview.dylibso.com/instrument) only re-compiles a Wasm binary and returns the updated code. We do not log or store any information about your submitted code. The compilation also adds no telemetry or other information besides the strictly-necessary auto-instrumentation to the Wasm instructions. If you would prefer to run this service yourself, please contact [support@dylibso.com](mailto:support@dylibso.com) to discuss the available options.
+
+
