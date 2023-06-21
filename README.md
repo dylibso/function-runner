@@ -39,7 +39,7 @@ Run your function like you normally would with the shopify function runner. It w
 > *Note*: The instrumenter works on all Wasm files, but we only offer support to shopify functions written in Rust for the scope of this demo
 
 ```
-function-runner -f my-shopify-function.wasm -j myinput.json
+function-runner -f benchmark/build/linear_memory_function.wasm -j benchmark/build/product_discount.json
 # => http://localhost:9411/zipkin/traces/41c49675061b0c99
 ```
 
