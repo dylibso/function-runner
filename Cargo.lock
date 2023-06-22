@@ -717,7 +717,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 [[package]]
 name = "dylibso-observe-sdk"
 version = "0.1.0"
-source = "git+https://github.com/dylibso/observe-sdk.git?branch=zipkin-handrolled-p2#3d00755ceee5dfc93036308302816a4649f42677"
+source = "git+https://github.com/dylibso/observe-sdk.git?branch=main#a8e306588bca3464fac31de5c60a8086bada1929"
 dependencies = [
  "anyhow",
  "log",
