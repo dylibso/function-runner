@@ -717,7 +717,7 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 [[package]]
 name = "dylibso-observe-sdk"
 version = "0.1.0"
-source = "git+https://github.com/dylibso/observe-sdk.git?branch=main#a8e306588bca3464fac31de5c60a8086bada1929"
+source = "git+https://github.com/dylibso/observe-sdk.git?branch=main#0c8edcda62d4f7b07dd270ae37b0b556208d956c"
 dependencies = [
  "anyhow",
  "log",
