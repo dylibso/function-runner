@@ -4,6 +4,12 @@ This fork of the [Shopify Function Runner](https://github.com/Shopify/function-r
 
 This README will show you how to instrument a Shopify Function and view the data in [Zipkin](https://zipkin.io/).
 
+## Demo
+
+<a href="https://www.loom.com/share/3bb8a3da8ec24d77a7c77265fba27f2d">
+    <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/3bb8a3da8ec24d77a7c77265fba27f2d-with-play.gif">
+</a>
+
 ## Instructions
 
 ### Install this forked version of the runner
@@ -38,7 +44,7 @@ Run your function like you normally would with the shopify function runner. It w
 
 > *Note*: The instrumenter works on all Wasm files, but we only offer support to shopify functions written in Rust for the scope of this demo
 
-```
+```bash
 function-runner -f example/discount.wasm -j example/discount.json
 # => http://localhost:9411/zipkin/traces/41c49675061b0c99
 ```
@@ -49,7 +55,7 @@ function-runner -f example/discount.wasm -j example/discount.json
 
 You can now instrument your Shopify function with our instrumenter. The only way to instrument your Wasm right now is through the instrumentation service. The easiest way to do this is to send up your Wasm with curl and get an instrumented Wasm module back:
 
-```
+```bash
 curl -F wasm=@code.wasm https://compiler-preview.dylibso.com/instrument -X POST -H 'Authorization: Bearer <your-api-key>' > code.instr.wasm
 ```
 
