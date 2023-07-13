@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Result};
-use dylibso_observe_sdk::adapter::{new_trace_id, zipkin::ZipkinAdapter};
+use dylibso_observe_sdk::{adapter::zipkin::ZipkinAdapter, new_trace_id};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
-use tokio::task;
 use ureq;
 use ureq_multipart::MultipartBuilder;
 use wasi_common::{I32Exit, WasiCtx};
@@ -92,8 +91,12 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         import_modules(&module, engine, &mut linker, &mut store);
 
         // create our adapter
-        let adapter = ZipkinAdapter::new();
-        let mut trace_ctx = adapter.start(&mut linker, &data).await?;
+        let adapter = ZipkinAdapter::create();
+        let trace_ctx = adapter.start(&mut linker, &data)?;
+
+        // optionally create/set a trace id, or the trace_ctx will assign one to this trace
+        let trace_id = new_trace_id();
+        trace_ctx.set_trace_id(trace_id.clone()).await;
 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
@@ -101,8 +104,6 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         let function_name = "_start";
         let function = instance.get_typed_func::<(), ()>(&mut store, function_name)?;
 
-        let trace_id = new_trace_id();
-        trace_ctx.set_trace_id(trace_id.clone()).await;
         let module_result = function.call(&mut store, ());
 
         // let module_result = instance
@@ -120,12 +121,11 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
             });
 
         // collect the events and shut it down
-        task::yield_now().await;
         trace_ctx.shutdown().await;
 
         println!(
             "http://localhost:9411/zipkin/traces/{}",
-            trace_id.to_hex_8()
+            trace_id.to_hex_16()
         );
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.
