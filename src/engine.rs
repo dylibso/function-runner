@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Result};
-use dylibso_observe_sdk::adapter::{new_trace_id, zipkin::ZipkinAdapter};
+use dylibso_observe_sdk::{adapter::zipkin::ZipkinAdapter, new_trace_id};
 use rust_embed::RustEmbed;
 use std::{collections::HashSet, io::Cursor, path::PathBuf};
-use tokio::task;
 use ureq;
 use ureq_multipart::MultipartBuilder;
 use wasi_common::{I32Exit, WasiCtx};
@@ -54,12 +53,16 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         .add_file("wasm", &function_path)?
         .finish()?;
 
-    println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
+    let token = std::env::var("DYLIBSO_OBSERVE_API_KEY")
+        .unwrap_or_else(|_| {
+            println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
+            return "48268d3d35a90f8ddfd47ea520a7dba9".to_string();
+        });
     println!("Instrumenting the module first...");
     let resp = ureq::post("https://compiler-preview.dylibso.com/instrument")
         // this key is a public, limited trial API key for this demo. please reach out to us for
         // your own key
-        .set("Authorization", "Bearer 48268d3d35a90f8ddfd47ea520a7dba9")
+        .set("Authorization", &format!("Bearer {}", token))
         .set("Content-Type", &content_type)
         .send_bytes(&data)?;
 
@@ -92,8 +95,12 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         import_modules(&module, engine, &mut linker, &mut store);
 
         // create our adapter
-        let adapter = ZipkinAdapter::new();
-        let mut trace_ctx = adapter.start(&mut linker, &data).await?;
+        let adapter = ZipkinAdapter::create();
+        let trace_ctx = adapter.start(&mut linker, &data)?;
+
+        // optionally create/set a trace id, or the trace_ctx will assign one to this trace
+        let trace_id = new_trace_id();
+        trace_ctx.set_trace_id(trace_id.clone()).await;
 
         linker.module(&mut store, "Function", &module)?;
         let instance = linker.instantiate(&mut store, &module)?;
@@ -101,8 +108,6 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         let function_name = "_start";
         let function = instance.get_typed_func::<(), ()>(&mut store, function_name)?;
 
-        let trace_id = new_trace_id();
-        trace_ctx.set_trace_id(trace_id.clone()).await;
         let module_result = function.call(&mut store, ());
 
         // let module_result = instance
@@ -120,12 +125,11 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
             });
 
         // collect the events and shut it down
-        task::yield_now().await;
         trace_ctx.shutdown().await;
 
         println!(
             "http://localhost:9411/zipkin/traces/{}",
-            trace_id.to_hex_8()
+            trace_id.to_hex_16()
         );
 
         // This is a hack to get the memory usage. Wasmtime requires a mutable borrow to a store for caching.

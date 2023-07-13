@@ -33,7 +33,7 @@ colored = "2.0"
 serde = "1.0"
 rust-embed = "6.6.1"
 is-terminal = "0.4.7"
-dylibso-observe-sdk = { git = "https://github.com/dylibso/observe-sdk.git", branch = "main" }
+dylibso-observe-sdk = { git = "https://github.com/dylibso/observe-sdk.git", commit = "5f7af32db65faf338a6a379480f514017cb42868" }
 tokio = "1.28.2"
 ureq = "2"
 ureq_multipart = "1.1.1"
