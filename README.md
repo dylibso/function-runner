@@ -53,6 +53,14 @@ function-runner -f example/discount.wasm -j example/discount.json
 
 *Note*: This demo auto-instruments the code for you with a trial API key, but this section describes how the service works
 
+### Using your own API key
+
+Contact support@dylibso.com and use your own API key via:
+```bash
+export DYLIBSO_OBSERVE_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx
+function-runner -f example/discount.wasm -j example/discount.json
+```
+
 You can now instrument your Shopify function with our instrumenter. The only way to instrument your Wasm right now is through the instrumentation service. The easiest way to do this is to send up your Wasm with curl and get an instrumented Wasm module back:
 
 ```bash
