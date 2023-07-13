@@ -56,7 +56,7 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
     let token = std::env::var("DYLIBSO_OBSERVE_API_KEY")
         .unwrap_or_else(|_| {
             println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
-            return "48268d3d35a90f8ddfd47ea520a7dba9".to_string();
+            return "d73f9d5d88e9c0b84f8eb849458c443f".to_string();
         });
     println!("Instrumenting the module first...");
     let resp = ureq::post("https://compiler-preview.dylibso.com/instrument")
