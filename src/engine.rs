@@ -53,12 +53,16 @@ pub async fn run(function_path: PathBuf, input: Vec<u8>) -> Result<FunctionRunRe
         .add_file("wasm", &function_path)?
         .finish()?;
 
-    println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
+    let token = std::env::var("DYLIBSO_OBSERVE_API_KEY")
+        .unwrap_or_else(|_| {
+            println!("The wasm code instrumentation is currently in preview, and the API key used in this demo will expire on Sept. 1 2023. Contact support@dylibso.com for your own key.");
+            return "48268d3d35a90f8ddfd47ea520a7dba9".to_string();
+        });
     println!("Instrumenting the module first...");
     let resp = ureq::post("https://compiler-preview.dylibso.com/instrument")
         // this key is a public, limited trial API key for this demo. please reach out to us for
         // your own key
-        .set("Authorization", "Bearer 48268d3d35a90f8ddfd47ea520a7dba9")
+        .set("Authorization", &format!("Bearer {}", token))
         .set("Content-Type", &content_type)
         .send_bytes(&data)?;
 
